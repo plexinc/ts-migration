@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -16,7 +17,6 @@ const fs_1 = __importDefault(require("fs"));
 const util_1 = require("util");
 const promise_1 = __importDefault(require("simple-git/promise"));
 const collectFiles_1 = __importDefault(require("./collectFiles"));
-const converter_1 = __importDefault(require("./converter"));
 const util_2 = require("./util");
 const commitAll_1 = __importDefault(require("./commitAll"));
 const exists = util_1.promisify(fs_1.default.exists);
@@ -25,7 +25,8 @@ function process(filePaths, shouldCommit, filesFromCLI) {
         const git = promise_1.default(filePaths.rootDir);
         const files = filesFromCLI || (yield collectFiles_1.default(filePaths));
         console.log(`Converting ${files.length} files`);
-        const { successFiles, errorFiles } = yield converter_1.default(files, filePaths.rootDir);
+        const successFiles = files;
+        const errorFiles = [];
         console.log(`${successFiles.length} converted successfully.`);
         console.log(`${errorFiles.length} errors:`);
         if (errorFiles.length)
@@ -87,7 +88,7 @@ function process(filePaths, shouldCommit, filesFromCLI) {
                 console.log(renameErrors);
             console.log(`Snaps found: ${snapsFound.length}`);
             console.log(`Snaps Not found: ${snapsNotFound.length}`);
-            yield commitAll_1.default("Rename files", filePaths);
+            yield commitAll_1.default("[CODEMOD][refactor] Rename files", filePaths);
             console.log(`${successFiles.length} converted successfully.`);
             console.log(`${errorFiles.length} errors`);
             if (errorFiles.length)

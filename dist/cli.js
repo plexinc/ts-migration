@@ -15,8 +15,8 @@ const { configJSON } = tsCompilerHelpers_1.createTSCompiler(rootDir);
 const filePaths = {
     rootDir,
     include: configJSON.config.include,
-    exclude: [],
-    extensions: [".ts", ".tsx"]
+    exclude: configJSON.config.exclude,
+    extensions: [".js", ".ts", ".tsx"]
 };
 commander_1.default
     .command("strip-comments")
@@ -36,7 +36,7 @@ commander_1.default
     .option("--exclude <list>", "A comma-seperated list of strings to exclude", (f) => f.split(","))
     .action((cmd) => {
     console.log("Converting the codebase from Flow to Typescript");
-    const paths = Object.assign({}, filePaths, { exclude: [...filePaths.exclude, ...(cmd.exclude || [])], extensions: [".js", ".jsx"] });
+    const paths = Object.assign(Object.assign({}, filePaths), { exclude: [...filePaths.exclude, ...(cmd.exclude || [])], extensions: [".js", ".jsx"] });
     console.log(paths);
     convertCodebase_1.default(paths, !!cmd.commit, cmd.files);
 });
@@ -47,7 +47,7 @@ commander_1.default
     .option("--exclude <list>", "A comma-seperated list of strings to exclude", (f) => f.split(","))
     .action((cmd) => {
     console.log("Ignoring Typescript errors...");
-    const paths = Object.assign({}, filePaths, { exclude: [...filePaths.exclude, ...(cmd.exclude || [])] });
+    const paths = Object.assign(Object.assign({}, filePaths), { exclude: [...filePaths.exclude, ...(cmd.exclude || [])] });
     console.log(paths);
     ignoreErrorsRunner_1.default(paths, !!cmd.commit, cmd.includeJSX);
 });

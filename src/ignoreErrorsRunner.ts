@@ -2,7 +2,6 @@ import { groupBy, uniqBy } from "lodash";
 import { readFileSync, writeFileSync } from "fs";
 import insertIgnore from "./insertIgnore";
 import commit from "./commitAll";
-import prettierFormat from "./prettierFormat";
 import { getFilePath, getDiagnostics } from "./tsCompilerHelpers";
 import { FilePaths } from "./cli";
 
@@ -24,6 +23,17 @@ export default async function compile(
   );
 
   Object.keys(diagnosticsGroupedByFile).forEach(async (fileName, i, arr) => {
+    if (fileName.includes('ContextManager')) {
+      console.log('fileName', fileName);
+      console.log('diagnosticsGroupedByFile[fileName]', diagnosticsGroupedByFile[fileName].length);
+      diagnosticsGroupedByFile[fileName].forEach(d => {
+        console.log('d', d.messageText, d.code);
+        const position = d.file!.getLineAndCharacterOfPosition(d.start!);
+        console.log('position', position);
+        console.log('text', d.file!.text.substr(d.start! - 20, 40));
+      });
+    }
+
     const fileDiagnostics = uniqBy(diagnosticsGroupedByFile[fileName], d =>
       d.file!.getLineAndCharacterOfPosition(d.start!)
     ).reverse();
@@ -39,8 +49,7 @@ export default async function compile(
         codeSplitByLine = insertIgnore(diagnostic, codeSplitByLine, includeJSX);
       });
       const fileData = codeSplitByLine.join("\n");
-      const formattedFileData = prettierFormat(fileData, paths.rootDir);
-      writeFileSync(filePath, formattedFileData);
+      writeFileSync(filePath, fileData);
       successFiles.push(fileName);
     } catch (e) {
       console.log(e);
@@ -49,7 +58,7 @@ export default async function compile(
   });
 
   if (shouldCommit) {
-    await commit("Ignore errors", paths);
+    await commit("[CODEMOD][refactor] Ignore errors", paths);
   }
 
   console.log(`${successFiles.length} files with errors ignored successfully.`);

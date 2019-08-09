@@ -20,8 +20,8 @@ export interface FilePaths {
 const filePaths: FilePaths = {
   rootDir,
   include: configJSON.config.include,
-  exclude: [],
-  extensions: [".ts", ".tsx"]
+  exclude: configJSON.config.exclude,
+  extensions: [".js", ".ts", ".tsx"]
 };
 
 program

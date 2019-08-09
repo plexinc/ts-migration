@@ -20,6 +20,8 @@ export function createTSCompiler(rootDir: string) {
 }
 
 export async function getDiagnostics(paths: FilePaths) {
+  console.log('Using TS version:', ts.version);
+
   const files = await collectFiles(paths);
   const { compilerOptions } = createTSCompiler(paths.rootDir);
 

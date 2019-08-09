@@ -6,7 +6,6 @@ import { promisify } from "util";
 import simplegit from "simple-git/promise";
 
 import collectFiles from "./collectFiles";
-import convert from "./converter";
 import { asyncForEach } from "./util";
 import commit from "./commitAll";
 import { FilePaths } from "./cli";
@@ -23,11 +22,13 @@ export default async function process(
   const files = filesFromCLI || (await collectFiles(filePaths));
 
   console.log(`Converting ${files.length} files`);
-  const { successFiles, errorFiles } = await convert(files, filePaths.rootDir);
+  const successFiles = files;
+  const errorFiles = [] as string[];
 
   console.log(`${successFiles.length} converted successfully.`);
   console.log(`${errorFiles.length} errors:`);
   if (errorFiles.length) console.log(errorFiles);
+
   if (shouldCommit) {
     await commit("Convert files", filePaths);
 
@@ -91,7 +92,7 @@ export default async function process(
 
     console.log(`Snaps found: ${snapsFound.length}`);
     console.log(`Snaps Not found: ${snapsNotFound.length}`);
-    await commit("Rename files", filePaths);
+    await commit("[CODEMOD][refactor] Rename files", filePaths);
 
     console.log(`${successFiles.length} converted successfully.`);
     console.log(`${errorFiles.length} errors`);
