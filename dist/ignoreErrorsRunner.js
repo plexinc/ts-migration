@@ -19,29 +19,19 @@ const commitAll_1 = __importDefault(require("./commitAll"));
 const tsCompilerHelpers_1 = require("./tsCompilerHelpers");
 const successFiles = [];
 const errorFiles = [];
-function compile(paths, shouldCommit, includeJSX) {
+function compile(paths, shouldCommit, includeJSX, message) {
     return __awaiter(this, void 0, void 0, function* () {
         const diagnostics = yield tsCompilerHelpers_1.getDiagnostics(paths);
         const diagnosticsWithFile = diagnostics.filter(d => !!d.file && !paths.exclude.some(e => d.file.fileName.includes(e)));
         const diagnosticsGroupedByFile = lodash_1.groupBy(diagnosticsWithFile, d => d.file.fileName);
         Object.keys(diagnosticsGroupedByFile).forEach((fileName, i, arr) => __awaiter(this, void 0, void 0, function* () {
-            if (fileName.includes('ContextManager')) {
-                console.log('fileName', fileName);
-                console.log('diagnosticsGroupedByFile[fileName]', diagnosticsGroupedByFile[fileName].length);
-                diagnosticsGroupedByFile[fileName].forEach(d => {
-                    console.log('d', d.messageText, d.code);
-                    const position = d.file.getLineAndCharacterOfPosition(d.start);
-                    console.log('position', position);
-                    console.log('text', d.file.text.substr(d.start - 20, 40));
-                });
-            }
             const fileDiagnostics = lodash_1.uniqBy(diagnosticsGroupedByFile[fileName], d => d.file.getLineAndCharacterOfPosition(d.start)).reverse();
             console.log(`${i} of ${arr.length - 1}: Ignoring ${fileDiagnostics.length} ts-error(s) in ${fileName}`);
             try {
                 const filePath = tsCompilerHelpers_1.getFilePath(paths, fileDiagnostics[0]);
                 let codeSplitByLine = fs_1.readFileSync(filePath, "utf8").split("\n");
                 fileDiagnostics.forEach((diagnostic, _errorIndex) => {
-                    codeSplitByLine = insertIgnore_1.default(diagnostic, codeSplitByLine, includeJSX);
+                    codeSplitByLine = insertIgnore_1.default(diagnostic, codeSplitByLine, includeJSX, message);
                 });
                 const fileData = codeSplitByLine.join("\n");
                 fs_1.writeFileSync(filePath, fileData);

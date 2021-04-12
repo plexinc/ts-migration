@@ -11,7 +11,8 @@ const errorFiles: string[] = [];
 export default async function compile(
   paths: FilePaths,
   shouldCommit: boolean,
-  includeJSX: boolean
+  includeJSX: boolean,
+  message?: string,
 ): Promise<void> {
   const diagnostics = await getDiagnostics(paths);
   const diagnosticsWithFile = diagnostics.filter(
@@ -23,17 +24,6 @@ export default async function compile(
   );
 
   Object.keys(diagnosticsGroupedByFile).forEach(async (fileName, i, arr) => {
-    if (fileName.includes('ContextManager')) {
-      console.log('fileName', fileName);
-      console.log('diagnosticsGroupedByFile[fileName]', diagnosticsGroupedByFile[fileName].length);
-      diagnosticsGroupedByFile[fileName].forEach(d => {
-        console.log('d', d.messageText, d.code);
-        const position = d.file!.getLineAndCharacterOfPosition(d.start!);
-        console.log('position', position);
-        console.log('text', d.file!.text.substr(d.start! - 20, 40));
-      });
-    }
-
     const fileDiagnostics = uniqBy(diagnosticsGroupedByFile[fileName], d =>
       d.file!.getLineAndCharacterOfPosition(d.start!)
     ).reverse();
@@ -46,7 +36,7 @@ export default async function compile(
       const filePath = getFilePath(paths, fileDiagnostics[0]);
       let codeSplitByLine = readFileSync(filePath, "utf8").split("\n");
       fileDiagnostics.forEach((diagnostic, _errorIndex) => {
-        codeSplitByLine = insertIgnore(diagnostic, codeSplitByLine, includeJSX);
+        codeSplitByLine = insertIgnore(diagnostic, codeSplitByLine, includeJSX, message);
       });
       const fileData = codeSplitByLine.join("\n");
       writeFileSync(filePath, fileData);

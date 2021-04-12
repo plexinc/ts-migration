@@ -2,7 +2,7 @@ import ts from "typescript";
 import * as utils from "tsutils";
 import { NodeWrap } from "tsutils";
 
-const IGNORE_TEXT = "// @ts-ignore from codemod - fix me please";
+const IGNORE_TEXT = "// @ts-expect-error from codemod";
 
 // JsxElement = 260,
 // JsxSelfClosingElement = 261,
@@ -38,7 +38,8 @@ const cacheMap = new Map();
 export default function insertIgnore(
   diagnostic: ts.Diagnostic,
   codeSplitByLine: string[],
-  includeJSX: boolean
+  includeJSX: boolean,
+  message?: string
 ) {
   const convertedAST = utils.convertAst(diagnostic.file!);
   const n = utils.getWrappedNodeAtPosition(
@@ -64,7 +65,7 @@ export default function insertIgnore(
     return codeSplitByLine;
   }
 
-  codeSplitByLine.splice(line, 0, prefix + IGNORE_TEXT);
+  codeSplitByLine.splice(line, 0, prefix + IGNORE_TEXT + (message?.length ? `: ${message}` : ''));
 
   return codeSplitByLine;
 }
