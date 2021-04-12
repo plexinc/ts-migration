@@ -3904,10 +3904,10 @@ type-check@~0.3.2:
   dependencies:
     prelude-ls "~1.1.2"
 
-typescript@3.8.3:
-  version "3.8.3"
-  resolved "https://artifactory.plex.bz:443/artifactory/api/npm/npm-stable-and-cache/typescript/-/typescript-3.8.3.tgz#409eb8544ea0335711205869ec458ab109ee1061"
-  integrity sha1-QJ64VE6gM1cRIFhp7EWKsQnuEGE=
+typescript@4.2.3:
+  version "4.2.3"
+  resolved "https://artifactory.plex.bz:443/artifactory/api/npm/npm-stable-and-cache/typescript/-/typescript-4.2.3.tgz#39062d8019912d43726298f09493d598048c1ce3"
+  integrity sha1-OQYtgBmRLUNyYpjwlJPVmASMHOM=
 
 uglify-js@^3.1.4:
   version "3.4.9"
